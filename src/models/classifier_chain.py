@@ -5,8 +5,8 @@ from sklearn.utils import check_random_state
 
 
 class ValidationClassifierChain:
-    """Classifier chain that takes training and validation set. Code based on
-    sklearn.multioutput.ClassifierChain
+    """Classifier chain that takes training and validation set. Code modeled
+    after sklearn.multioutput.ClassifierChain
 
     Args:
         model (DepthwiseXGBPipeline or LogisticRegressionModel): Class of

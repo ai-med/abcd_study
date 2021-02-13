@@ -49,7 +49,7 @@ class ResultManager:
             later when finish() is called
 
         :param dataset_name: Name of full dataset (e.g. unpermuted, permuted_1,
-            etc.)
+            permuted_2, etc.)
         :param model_name: Name of model
         :param fold: Number of current fold in (repeated) k-fold CV
         :param split_set: Name of split set. Possible values: train, valid,
