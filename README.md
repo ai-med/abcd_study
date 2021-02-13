@@ -1,57 +1,45 @@
 abcd_paper
 ==============================
 
-Explore the predictability of various psychiatric diagnoses based on neuroimaging features
+Goal: Explore predictability of various psychiatric diagnoses based on neuroimaging features in subjects from the ABCD study.
 
-Project Organization
-------------
+Getting started
+===============
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+1. Create a new directory ``data/raw/`` in the root of this repository and copy the following files from the baseline release of the ABCD study into it:
 
+```
+abcd_ksad01.txt
+abcd_ksad501.txt
+acspsw03.txt
+btsv01.txt
+```
 
---------
+2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe.
+
+Running the experiments
+=======================
+
+1. To fit and obtain training, validation, and test set predictions by the OVR logistic regression, CCE logistic regression, and CCE Bayesian optimized XGBoost models on the processed dataset, run ``python src/runnable/run_unpermuted.py``. Use the following options:
+    ```
+    --seed: Random number seed (int)
+    --k: Number of cross validation folds (int, default 5)
+    --n: Number of successive k-fold CV runs (int)
+    ```
+2. To fit and obtain predictions on random permutations of the processed dataset, run ``python src/runnable/run_permuted.py`` using the following options:
+   ```
+   --seed: Random number seed (int)
+   --k: Number of cross validation folds (int, default 5)
+   --n: Number of successive k-fold CV runs (int)
+   --num_permutations: Number of random permutations (int)
+   ```
+**Note:** Running these experiments will take extended amounts of time (about 20 hours for a single repeat of 5-fold cross validation on a fast machine) and consider parallelizing computations on several machines by using different seeds.
+
+Evaluation and visualization
+============================
+
+All raw predictions are saved to ``results/``.
+
+---
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
