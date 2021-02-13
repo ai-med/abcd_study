@@ -8,12 +8,12 @@ Getting started
 
 1. Create a new directory ``data/raw/`` in the root of this repository and copy the following files from the baseline release of the ABCD study into it:
 
-```
-abcd_ksad01.txt
-abcd_ksad501.txt
-acspsw03.txt
-btsv01.txt
-```
+   ```
+   abcd_ksad01.txt
+   abcd_ksad501.txt
+   acspsw03.txt
+   btsv01.txt
+   ```
 
 2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe.
 
