@@ -1,0 +1,84 @@
+Diagnosis,Spec,Interview,File,Feature
+Other Specified Neurodevelopmental Disorder Autism Spectrum Disorder,current,parent interview,abcd_ksad01,ksads_18_903_p
+Major Depressive Disorder,current,parent interview,abcd_ksad01,ksads_1_840_p
+Major Depressive Disorder,past,parent interview,abcd_ksad01,ksads_1_842_p
+Major Depressive Disorder,current,youth interview,abcd_ksad501,ksads_1_840_t
+Major Depressive Disorder,past,youth interview,abcd_ksad501,ksads_1_842_t
+Bipolar I Disorder,current episode manic,parent interview,abcd_ksad01,ksads_2_830_p
+Bipolar I Disorder,current episode depressed,parent interview,abcd_ksad01,ksads_2_831_p
+Bipolar I Disorder,current episode hypomanic,parent interview,abcd_ksad01,ksads_2_832_p
+Bipolar I Disorder,most recent past episode manic,parent interview,abcd_ksad01,ksads_2_833_p
+Bipolar I Disorder,most recent past episode depressed,parent interview,abcd_ksad01,ksads_2_834_p
+Bipolar I Disorder,current episode manic,youth interview,abcd_ksad501,ksads_2_830_t
+Bipolar I Disorder,current episode depressed,youth interview,abcd_ksad501,ksads_2_831_t
+Bipolar I Disorder,current episode hypomanic,youth interview,abcd_ksad501,ksads_2_832_t
+Bipolar I Disorder,most recent past episode manic,youth interview,abcd_ksad501,ksads_2_833_t
+Bipolar I Disorder,most recent past episode depressed,youth interview,abcd_ksad501,ksads_2_834_t
+Bipolar II Disorder,currently hypomanic,parent interview,abcd_ksad01,ksads_2_835_p
+Bipolar II Disorder,currently depressed,parent interview,abcd_ksad01,ksads_2_836_p
+Bipolar II Disorder,most recent past hypomanic,parent interview,abcd_ksad01,ksads_2_837_p
+Bipolar II Disorder,currently hypomanic,youth interview,abcd_ksad501,ksads_2_835_t
+Bipolar II Disorder,currently depressed,youth interview,abcd_ksad501,ksads_2_836_t
+Bipolar II Disorder,most recent past hypomanic,youth interview,abcd_ksad501,ksads_2_837_t
+Psychotic Symptoms,Hallucinations current,parent interview,abcd_ksad01,ksads_4_826_p
+Psychotic Symptoms,Hallucinations past,parent interview,abcd_ksad01,ksads_4_827_p
+Psychotic Symptoms,Delusions current,parent interview,abcd_ksad01,ksads_4_828_p
+Psychotic Symptoms,Delusions past,parent interview,abcd_ksad01,ksads_4_829_p
+Psychotic Symptoms,Associated Psychotic Symptoms current,parent interview,abcd_ksad01,ksads_4_849_p
+Psychotic Symptoms,Associated Psychotic Symptoms past,parent interview,abcd_ksad01,ksads_4_850_p
+ADHD,current,parent interview,abcd_ksad01,ksads_14_853_p
+ADHD,past,parent interview,abcd_ksad01,ksads_14_854_p
+Oppositional Defiant Disorder,current,parent interview,abcd_ksad01,ksads_15_901_p
+Oppositional Defiant Disorder,past,parent interview,abcd_ksad01,ksads_15_902_p
+Conduct Disorder,current childhood onset,parent interview,abcd_ksad01,ksads_16_897_p
+Conduct Disorder,past childhood onset,parent interview,abcd_ksad01,ksads_16_899_p
+Conduct Disorder,current adolescent onset,parent interview,abcd_ksad01,ksads_16_898_p
+Conduct Disorder,past adolescent onset,parent interview,abcd_ksad01,ksads_16_900_p
+PTSD,current,parent interview,abcd_ksad01,ksads_21_921_p
+PTSD,past,parent interview,abcd_ksad01,ksads_21_922_p
+Obsessive Compulsive Disorder,current,parent interview,abcd_ksad01,ksads_11_917_p
+Obsessive Compulsive Disorder,past,parent interview,abcd_ksad01,ksads_11_918_p
+Sleep Problems,current,parent interview,abcd_ksad01,ksads_22_969_p
+Sleep Problems,past,parent interview,abcd_ksad01,ksads_22_970_p
+Sleep Problems,current,youth interview,abcd_ksad501,ksads_22_969_t
+Sleep Problems,past,youth interview,abcd_ksad501,ksads_22_970_t
+Suicide Tendency,Self Injurious Behavior without suicidal intent Present,parent interview,abcd_ksad01,ksads_23_945_p
+Suicide Tendency,Suicidal ideation Passive Present,parent interview,abcd_ksad01,ksads_23_946_p
+Suicide Tendency,Suicidal ideation Active nonspecific Present,parent interview,abcd_ksad01,ksads_23_947_p
+Suicide Tendency,Suicidal ideation Active method Present,parent interview,abcd_ksad01,ksads_23_948_p
+Suicide Tendency,Suicidal ideation Active intent Present,parent interview,abcd_ksad01,ksads_23_949_p
+Suicide Tendency,Suicidal ideation Active plan Present,parent interview,abcd_ksad01,ksads_23_950_p
+Suicide Tendency,Preparatory Actions toward imminent Suicidal behavior Present,parent interview,abcd_ksad01,ksads_23_951_p
+Suicide Tendency,Interrupted Attempt Present,parent interview,abcd_ksad01,ksads_23_952_p
+Suicide Tendency,Aborted Attempt Present,parent interview,abcd_ksad01,ksads_23_953_p
+Suicide Tendency,Suicide Attempt Present,parent interview,abcd_ksad01,ksads_23_954_p
+Suicide Tendency,Self Injurious Behavior without suicidal intent Past,parent interview,abcd_ksad01,ksads_23_956_p
+Suicide Tendency,Suicidal ideation Passive Past,parent interview,abcd_ksad01,ksads_23_957_p
+Suicide Tendency,Suicidal ideation Active nonspecific Past,parent interview,abcd_ksad01,ksads_23_958_p
+Suicide Tendency,Suicidal ideation Active method Past,parent interview,abcd_ksad01,ksads_23_959_p
+Suicide Tendency,Suicidal ideation Active intent Past,parent interview,abcd_ksad01,ksads_23_960_p
+Suicide Tendency,Suicidal ideation Active plan Past,parent interview,abcd_ksad01,ksads_23_961_p
+Suicide Tendency,Preparatory Actions toward imminent Suicidal behavior Past,parent interview,abcd_ksad01,ksads_23_962_p
+Suicide Tendency,Interrupted Attempt Past,parent interview,abcd_ksad01,ksads_23_963_p
+Suicide Tendency,Aborted Attempt Past,parent interview,abcd_ksad01,ksads_23_964_p
+Suicide Tendency,Suicide Attempt Past,parent interview,abcd_ksad01,ksads_23_965_p
+Suicide Tendency,Self Injurious Behavior without suicidal intent Present,youth interview,abcd_ksad501,ksads_23_945_t
+Suicide Tendency,Suicidal ideation Passive Present,youth interview,abcd_ksad501,ksads_23_946_t
+Suicide Tendency,Suicidal ideation Active nonspecific Present,youth interview,abcd_ksad501,ksads_23_947_t
+Suicide Tendency,Suicidal ideation Active method Present,youth interview,abcd_ksad501,ksads_23_948_t
+Suicide Tendency,Suicidal ideation Active intent Present,youth interview,abcd_ksad501,ksads_23_949_t
+Suicide Tendency,Suicidal ideation Active plan Present,youth interview,abcd_ksad501,ksads_23_950_t
+Suicide Tendency,Preparatory Actions toward imminent Suicidal behavior Present,youth interview,abcd_ksad501,ksads_23_951_t
+Suicide Tendency,Interrupted Attempt Present,youth interview,abcd_ksad501,ksads_23_952_t
+Suicide Tendency,Aborted Attempt Present,youth interview,abcd_ksad501,ksads_23_953_t
+Suicide Tendency,Suicide Attempt Present,youth interview,abcd_ksad501,ksads_23_954_t
+Suicide Tendency,Self Injurious Behavior without suicidal intent Past,youth interview,abcd_ksad501,ksads_23_956_t
+Suicide Tendency,Suicidal ideation Passive Past,youth interview,abcd_ksad501,ksads_23_957_t
+Suicide Tendency,Suicidal ideation Active nonspecific Past,youth interview,abcd_ksad501,ksads_23_958_t
+Suicide Tendency,Suicidal ideation Active method Past,youth interview,abcd_ksad501,ksads_23_959_t
+Suicide Tendency,Suicidal ideation Active intent Past,youth interview,abcd_ksad501,ksads_23_960_t
+Suicide Tendency,Suicidal ideation Active plan Past,youth interview,abcd_ksad501,ksads_23_961_t
+Suicide Tendency,Preparatory Actions toward imminent Suicidal behavior Past,youth interview,abcd_ksad501,ksads_23_962_t
+Suicide Tendency,Interrupted Attempt Past,youth interview,abcd_ksad501,ksads_23_963_t
+Suicide Tendency,Aborted Attempt Past,youth interview,abcd_ksad501,ksads_23_964_t
+Suicide Tendency,Suicide Attempt Past,youth interview,abcd_ksad501,ksads_23_965_t
