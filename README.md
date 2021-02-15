@@ -21,7 +21,11 @@ Getting started
    sociodem_bl.csv
    ```
 
-2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe.
+2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe. Use the following options:
+   ```
+   --select-one-child-per-family: Whether to randomly select only one child per family.'
+   --seed: Random number seed for selecting one child per family.
+   ```
 
 Running the experiments
 =======================

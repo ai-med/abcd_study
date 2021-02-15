@@ -1,5 +1,6 @@
 import logging
 import click
+import random
 
 import pandas as pd
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -29,14 +30,9 @@ def main(seed, k, n):
 
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
-    logger.info('Select one child per family')
-    abcd_data = prep.select_one_child_per_family(
-        abcd_data_path=RAW_DATA_DIR,
-        abcd_df=abcd_data,
-        random_state=seed
-    )
 
     logger.info('Set up data structures')
+    rnd = random.Random(x=seed)
     data_loader = RepeatedStratifiedKFoldDataloader(
         dataframe=abcd_data,
         features=abcd_vars.all_brain_features.features,
@@ -45,7 +41,7 @@ def main(seed, k, n):
         n=n,
         k=k,
         val_ratio=0.2,
-        random_state=seed
+        random_state=rnd.randint(0, 999999999)
     )
     tensorboard_logger = TensorBoardLogger(REPO_ROOT / 'tensorboard')
     manager = ResultManager(
@@ -69,7 +65,7 @@ def main(seed, k, n):
             features=features_selected,
             responses=abcd_vars.diagnoses.features,
             model_args=logistic_regression_args,
-            random_state=seed
+            random_state=rnd.randint(0, 999999999)
         )
         ovr_predictor.fit(pd.concat((train, valid)))
         logger.info(f'Total fold {i}: Save OVR logistic regression predictions')
@@ -90,7 +86,7 @@ def main(seed, k, n):
             responses=abcd_vars.diagnoses.features,
             num_chains=10,
             model_args=logistic_regression_args,
-            random_state=seed
+            random_state=rnd.randint(0, 999999999)
         )
         lr_cce_predictor.fit(train, valid)
         logger.info(f'Total fold {i}: Save CCE logistic regression predictions')
@@ -105,7 +101,7 @@ def main(seed, k, n):
             )
 
         logger.info(f'Total fold {i}: Fit CCE XGBoost classifier')
-        """xgboost_cce_predictor = ClassifierChainEnsemble(
+        xgboost_cce_predictor = ClassifierChainEnsemble(
             model=DepthwiseXGBPipeline,
             features=features_selected,
             responses=abcd_vars.diagnoses.features,
@@ -113,7 +109,7 @@ def main(seed, k, n):
             model_args={
                 'n_calls': 30
             },
-            random_state=seed
+            random_state=rnd.randint(0, 999999999)
         )
         xgboost_cce_predictor.fit(train, valid)
         logger.info(f'Total fold {i}: Save CCE XGBoost predictions')
@@ -125,7 +121,7 @@ def main(seed, k, n):
                 split_set=ds_str,
                 y_true=ds[abcd_vars.diagnoses.features],
                 y_pred=xgboost_cce_predictor.predict(ds[features_selected])
-            )"""
+            )
 
     logger.info('Save final ROC AUC values')
     manager.finish()

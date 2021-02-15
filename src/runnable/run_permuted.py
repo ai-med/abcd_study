@@ -1,11 +1,11 @@
 import logging
 import click
+import random
 
 import pandas as pd
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from definitions import REPO_ROOT, RAW_DATA_DIR, PROCESSED_DATA_DIR
-import src.data.preprocess_data as prep
+from definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
 from src.models.classifier_chain import ClassifierChainEnsemble
 from src.models.logistic_regression import (
@@ -29,12 +29,6 @@ def main(seed, k, n, num_permutations):
                 f'permuted datasets with seed={seed}, k={k}, n={n}.')
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
-    logger.info('Select one child per family')
-    abcd_data = prep.select_one_child_per_family(
-        abcd_data_path=RAW_DATA_DIR,
-        abcd_df=abcd_data,
-        random_state=seed
-    )
 
     tensorboard_logger = TensorBoardLogger(
         REPO_ROOT / 'tensorboard' / f'seed={seed}k={k}'
@@ -52,16 +46,15 @@ def main(seed, k, n, num_permutations):
         'max_iter': 500,
         'class_weight': 'balanced'
     }
+    rnd = random.Random(x=seed)
 
     for perm in range(num_permutations):
-
-        random_state = seed+perm
 
         logger.info(f'Create permutation no. {perm}')
         abcd_data_permuted = abcd_data.copy()
         abcd_data_permuted[abcd_vars.diagnoses.features] = \
             abcd_data_permuted[abcd_vars.diagnoses.features].sample(
-                frac=1, random_state=random_state
+                frac=1, random_state=rnd.randint(0, 999999999)
             ).to_numpy()
 
         logger.info('Set up data structures')
@@ -73,7 +66,7 @@ def main(seed, k, n, num_permutations):
             n=n,
             k=k,
             val_ratio=0.2,
-            random_state=seed
+            random_state=rnd.randint(0, 999999999)
         )
 
         logger.info('Start training and prediction')
@@ -85,7 +78,7 @@ def main(seed, k, n, num_permutations):
                 features=features_selected,
                 responses=abcd_vars.diagnoses.features,
                 model_args=logistic_regression_args,
-                random_state=seed
+                random_state=rnd.randint(0, 999999999)
             )
             ovr_predictor.fit(pd.concat((train, valid)))
             logger.info(f'Permutation {perm}, total fold {i}: Save OVR logistic regression '
@@ -108,7 +101,7 @@ def main(seed, k, n, num_permutations):
                 responses=abcd_vars.diagnoses.features,
                 num_chains=10,
                 model_args=logistic_regression_args,
-                random_state=seed
+                random_state=rnd.randint(0, 999999999)
             )
             lr_cce_predictor.fit(train, valid)
             logger.info(f'Permutation {perm}, total fold {i}: Save CCE logistic regression '
@@ -132,7 +125,7 @@ def main(seed, k, n, num_permutations):
                 model_args={
                     'n_calls': 30
                 },
-                random_state=seed
+                random_state=rnd.randint(0, 999999999)
             )
             xgboost_cce_predictor.fit(train, valid)
             logger.info(f'Permutation {perm}, total fold {i}: Save CCE XGBoost predictions')
