@@ -6,13 +6,19 @@ Goal: Explore predictability of various psychiatric diagnoses based on neuroimag
 Getting started
 ===============
 
-1. Create a new directory ``data/raw/`` in the root of this repository and copy the following files from the baseline release of the ABCD study into it:
+1. Copy the following files into ``data/raw/``:
 
+   From the baseline release of the ABCD study:
    ```
    abcd_ksad01.txt
    abcd_ksad501.txt
    acspsw03.txt
    btsv01.txt
+   ```
+   Additional files (contact repository creator for these files):
+   ```
+   abcd_freesurfer.csv
+   sociodem_bl.csv
    ```
 
 2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe.

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from definitions import RAW_DATA_DIR, PROCESSED_DATA_DIR
 from src.data.preprocess_data import (
@@ -32,6 +33,7 @@ def main(input_filepath, output_filepath):
 
     # Save
     logger.info(f'Save to {output_filepath}')
+    output_filepath.mkdir(parents=True, exist_ok=True)
     abcd_data_df.to_csv(
         path_or_buf=output_filepath / 'abcd_data.csv', index=True
     )
