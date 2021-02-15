@@ -23,8 +23,8 @@ Getting started
 
 2. Run ``python src/runnable/make_dataset.py`` to process and combine these data into one dataframe. Use the following options:
    ```
-   --select-one-child-per-family: Whether to randomly select only one child per family.'
-   --seed: Random number seed for selecting one child per family.
+   --select-one-child-per-family: Whether to randomly select only one child per family
+   --seed: Random number seed for selecting one child per family
    ```
 
 Running the experiments
@@ -43,7 +43,7 @@ Running the experiments
    --n: Number of successive k-fold CV runs (int)
    --num_permutations: Number of random permutations (int)
    ```
-**Note:** Running these experiments will take extended amounts of time (about 20 hours for a single repeat of 5-fold cross validation on a fast machine) and consider parallelizing computations on several machines by using different seeds.
+**Note:** Running these experiments will take extended amounts of time (about 20 hours for a single repeat of 5-fold cross validation on a fast machine). Consider parallelizing computations on several machines by using different seeds.
 
 Evaluation and visualization
 ============================

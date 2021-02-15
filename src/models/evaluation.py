@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 import json
 from matplotlib import pyplot as plt
@@ -22,16 +23,18 @@ class ResultManager:
     def __init__(self,
                  tensorboard_logger,
                  save_root: Path,
+                 run_name: str,
                  save_params: dict = None):
-        i = 0
-        while (save_root / f"run_{i}").exists():
-            i += 1
-        self.save_root = save_root / f"run_{i}"
+        self.save_root = save_root / run_name
+        if (self.save_root).exists():
+            shutil.rmtree(self.save_root)
         self.save_root.mkdir(parents=True)
+
         # Save high level parameters (e.g. random_state)
         if save_params:
             with open(self.save_root / 'params.txt', 'w') as file:
                 file.write(json.dumps(save_params))
+
         # Store ROC AUC values
         self.roc_auc_values = {}
         self.logger = tensorboard_logger

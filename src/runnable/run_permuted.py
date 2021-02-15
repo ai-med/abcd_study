@@ -36,6 +36,7 @@ def main(seed, k, n, num_permutations):
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
+        run_name=f"run_permuted_seed{seed}n{n}k{k}num_permutations{num_permutations}",
         save_params={
             'random_state': seed, 'n': n, 'k': k,
             'num_permutations': num_permutations

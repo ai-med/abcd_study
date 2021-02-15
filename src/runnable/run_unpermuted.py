@@ -47,6 +47,7 @@ def main(seed, k, n):
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
+        run_name=f"run_unpermuted_seed{seed}n{n}k{k}",
         save_params={
             'random_state': seed, 'n': n, 'k': k
         }
