@@ -26,6 +26,7 @@ Getting started
    --select-one-child-per-family: Whether to randomly select only one child per family
    --seed: Random number seed for selecting one child per family
    ```
+   For the paper, a `seed` of 77 was used.
 
 Running the experiments
 =======================

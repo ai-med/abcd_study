@@ -81,7 +81,8 @@ target/
 /data/processed/*
 /data/raw/*
 !/data/raw/subindicators_table.csv
-/results/
+/results/*
+/reports/*
 
 # Mac OS-specific storage files
 .DS_Store

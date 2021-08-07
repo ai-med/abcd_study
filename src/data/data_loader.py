@@ -76,7 +76,8 @@ class RepeatedStratifiedKFoldDataloader:
                  n: int,
                  k: int,
                  val_ratio: float,
-                 random_state: int = None):
+                 random_state: int = None,
+                 ignore_adjustment: bool = False):
         self.df = dataframe
         self.features = features
         self.responses = responses
@@ -85,6 +86,7 @@ class RepeatedStratifiedKFoldDataloader:
         self.k = k
         self.val_ratio = val_ratio
         self.random_state = random_state
+        self.ignore_adjustment = ignore_adjustment
         self.clean()
         # Encode multilabel subject assignment as one number. This will be
         # necessary for stratification with RepeatedStratifiedKFold.
@@ -116,7 +118,10 @@ class RepeatedStratifiedKFoldDataloader:
             random_state=self.random_state
         )
         train_indices, valid_indices = _train.index, _valid.index
-        output = self.residualize_features(self.df, train_indices)
+        if not self.ignore_adjustment:
+            output = self.residualize_features(self.df, train_indices)
+        else:
+            output = self.df.copy()
         output, features_selected = self.transform_features(output, train_indices)
         return (
             output.loc[train_indices],
@@ -181,9 +186,12 @@ class RepeatedStratifiedKFoldDataloader:
                            dataframe: pd.DataFrame,
                            train_indices: np.array) -> (pd.DataFrame, List[str]):
         """
-        Apply a linear transformation to features:
-            1. Fit transformer to training set data
-            2. Transform training and test set data using this transformer
+        In order, apply basic feature selection and linear transformation to
+        features:
+            1. Drop features with negligible variance
+            2. Rescale features by applying a RobustScaler
+        Do all fitting using training set data prior to transforming all data to
+        prevent information leakage.
         """
 
         output = dataframe.copy()

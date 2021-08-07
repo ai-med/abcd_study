@@ -5,8 +5,7 @@ import random
 import pandas as pd
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from definitions import REPO_ROOT, RAW_DATA_DIR, PROCESSED_DATA_DIR
-import src.data.preprocess_data as prep
+from definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
 from src.models.classifier_chain import ClassifierChainEnsemble
 from src.models.logistic_regression import (
@@ -22,7 +21,9 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
 @click.option('--seed', default=0, help='Random number seed.', type=int)
 @click.option('--k', default=5, help='Number of CV folds.', type=int)
 @click.option('--n', help='Number of successive k-fold CV runs.', type=int)
-def main(seed, k, n):
+@click.option('--unadjusted', help='Do not adjust features for confounders.',
+              is_flag=True)
+def main(seed, k, n, unadjusted):
 
     logger = logging.getLogger(__name__)
     logger.info(f'Running training and prediction on unpermuted dataset with '
@@ -41,15 +42,17 @@ def main(seed, k, n):
         n=n,
         k=k,
         val_ratio=0.2,
-        random_state=rnd.randint(0, 999999999)
+        random_state=rnd.randint(0, 999999999),
+        ignore_adjustment=unadjusted
     )
     tensorboard_logger = TensorBoardLogger(REPO_ROOT / 'tensorboard')
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
-        run_name=f"run_unpermuted_seed{seed}n{n}k{k}",
+        run_name=f"run_unpermuted_seed{seed}n{n}k{k}"
+                 f"{'unadjusted' if unadjusted else 'adjusted'}",
         save_params={
-            'random_state': seed, 'n': n, 'k': k
+            'random_state': seed, 'n': n, 'k': k, 'unadjusted': unadjusted
         }
     )
     logistic_regression_args = {
