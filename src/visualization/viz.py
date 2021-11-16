@@ -28,7 +28,7 @@ def load_test_auc_data(methods: List[str]):
     mean_unpermuted_aucs = {m: {} for m in methods}
     permuted_aucs = {'Method': [], 'Diagnosis': [], 'mean_auc': []}
     for file in os.listdir(REPO_ROOT / 'results'):
-        if file.startswith('run_unpermuted'):
+        if file.startswith('run_unpermuted') and not file.endswith('unadjusted'):
             for unpermuted_folder in os.listdir(REPO_ROOT / 'results' / file):
                 if unpermuted_folder.startswith('unpermuted'):
                     for method in methods:

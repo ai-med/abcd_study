@@ -97,7 +97,7 @@ pytorch-lightning==1.1.4
 pytz==2020.1
 pywin32==227
 pywinpty==0.5.7
-PyYAML==5.3.1
+PyYAML==5.4.1
 pyzmq==19.0.2
 qtconsole @ file:///tmp/build/80754af9/qtconsole_1600870028330/work
 QtPy==1.9.0
@@ -111,7 +111,7 @@ seaborn @ file:///tmp/build/80754af9/seaborn_1600553570093/work
 Send2Trash==1.5.0
 sip==4.19.13
 six==1.15.0
--e git+https://github.com/richardgaus/abcd_paper.git@f924f831c70515992a14febdba27ae3154f3bf81#egg=src
+-e git+https://github.com/richardgaus/abcd_paper.git@4e703bf0df02deeec30cb89f66afb621c08f63e8#egg=src
 statsmodels==0.12.0
 tensorboard==2.4.1
 tensorboard-plugin-wit==1.7.0
