@@ -22,7 +22,11 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
 @click.option('--k', default=5, help='Number of CV folds.', type=int)
 @click.option('--n', help='Number of successive k-fold CV runs.', type=int)
 @click.option('--num-permutations', help='Number of random permutations.', type=int)
-def main(seed, k, n, num_permutations):
+@click.option('--features',
+              type=click.Choice(['all', 'freesurfer', 'sri']),
+              default='freesurfer',
+              help='Which subset of cortical and subcortical features to use.')
+def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> None:
 
     logger = logging.getLogger(__name__)
     logger.info(f'Running training and prediction on {num_permutations} '
@@ -36,7 +40,7 @@ def main(seed, k, n, num_permutations):
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
-        run_name=f"run_permuted_seed{seed}n{n}k{k}num_permutations{num_permutations}",
+        run_name=f"run_permuted_seed{seed}n{n}k{k}num_permutations{num_permutations}_{features}",
         save_params={
             'random_state': seed, 'n': n, 'k': k,
             'num_permutations': num_permutations
@@ -48,6 +52,15 @@ def main(seed, k, n, num_permutations):
         'class_weight': 'balanced'
     }
     rnd = random.Random(x=seed)
+
+    if features == 'all':
+        features_list = abcd_vars.all_brain_features.features
+    elif features == 'freesurfer':
+        features_list = abcd_vars.freesurfer.features
+    elif features == 'sri':
+        features_list = abcd_vars.sri24.features
+    else:
+        raise AssertionError()
 
     for perm in range(num_permutations):
 
@@ -61,7 +74,7 @@ def main(seed, k, n, num_permutations):
         logger.info('Set up data structures')
         data_loader = RepeatedStratifiedKFoldDataloader(
             dataframe=abcd_data_permuted,
-            features=abcd_vars.all_brain_features.features,
+            features=features_list,
             responses=abcd_vars.diagnoses.features,
             confounders=abcd_vars.sociodem.features,
             n=n,

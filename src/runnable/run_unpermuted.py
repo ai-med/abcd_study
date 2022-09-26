@@ -23,7 +23,11 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
 @click.option('--n', help='Number of successive k-fold CV runs.', type=int)
 @click.option('--unadjusted', help='Do not adjust features for confounders.',
               is_flag=True)
-def main(seed, k, n, unadjusted):
+@click.option('--features',
+              type=click.Choice(['all', 'freesurfer', 'sri']),
+              default='freesurfer',
+              help='Which subset of cortical and subcortical features to use.')
+def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
 
     logger = logging.getLogger(__name__)
     logger.info(f'Running training and prediction on unpermuted dataset with '
@@ -32,11 +36,20 @@ def main(seed, k, n, unadjusted):
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
 
+    if features == 'all':
+        features_list = abcd_vars.all_brain_features.features
+    elif features == 'freesurfer':
+        features_list = abcd_vars.freesurfer.features
+    elif features == 'sri':
+        features_list = abcd_vars.sri24.features
+    else:
+        raise AssertionError()
+
     logger.info('Set up data structures')
     rnd = random.Random(x=seed)
     data_loader = RepeatedStratifiedKFoldDataloader(
         dataframe=abcd_data,
-        features=abcd_vars.all_brain_features.features,
+        features=features_list,
         responses=abcd_vars.diagnoses.features,
         confounders=abcd_vars.sociodem.features,
         n=n,
@@ -49,7 +62,7 @@ def main(seed, k, n, unadjusted):
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
-        run_name=f"run_unpermuted_seed{seed}n{n}k{k}"
+        run_name=f"run_unpermuted_seed{seed}n{n}k{k}_{features}_"
                  f"{'unadjusted' if unadjusted else 'adjusted'}",
         save_params={
             'random_state': seed, 'n': n, 'k': k, 'unadjusted': unadjusted

@@ -1,4 +1,5 @@
-from typing import List
+from functools import cached_property
+from typing import List, Tuple
 
 import pandas as pd
 import numpy as np
@@ -25,7 +26,7 @@ def train_test_split_noproblem(df: pd.DataFrame,
                                test_size: float,
                                stratify,
                                random_state: int = None)\
-        -> (pd.DataFrame, pd.DataFrame):
+        -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Some codes occur only once in the dataset. train_test_split does not work
     # then. For this reason we need to exclude them and split them randomly
     # afterwards.
@@ -78,23 +79,27 @@ class RepeatedStratifiedKFoldDataloader:
                  val_ratio: float,
                  random_state: int = None,
                  ignore_adjustment: bool = False):
-        self.df = dataframe
         self.features = features
         self.responses = responses
         self.confounders = confounders
+        self.dataframe = self.clean(dataframe)
         self.n = n
         self.k = k
         self.val_ratio = val_ratio
         self.random_state = random_state
         self.ignore_adjustment = ignore_adjustment
-        self.clean()
+
         # Encode multilabel subject assignment as one number. This will be
         # necessary for stratification with RepeatedStratifiedKFold.
-        self.encoded_responses = encode_multilabel(self.df[self.responses])
+        self.encoded_responses = encode_multilabel(self.dataframe.loc[:, self.responses])
 
-    def clean(self):
+    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
         # Prepare dataset: Remove subjects with missing features, responses or confounders
-        self.df = self.df.dropna(subset=self.features + self.confounders + self.responses)
+        return df.dropna(subset=self.features + self.confounders + self.responses)
+
+    @cached_property
+    def df(self) -> pd.DataFrame:
+        return self.dataframe.loc[:, self.features + self.confounders + self.responses]
 
     @property
     def df_size(self):
@@ -184,7 +189,7 @@ class RepeatedStratifiedKFoldDataloader:
 
     def transform_features(self,
                            dataframe: pd.DataFrame,
-                           train_indices: np.array) -> (pd.DataFrame, List[str]):
+                           train_indices: np.array) -> Tuple[pd.DataFrame, List[str]]:
         """
         In order, apply basic feature selection and linear transformation to
         features:
