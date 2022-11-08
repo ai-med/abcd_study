@@ -30,8 +30,11 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
 def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
 
     logger = logging.getLogger(__name__)
-    logger.info(f'Running training and prediction on unpermuted dataset with '
-                f'seed={seed}, k={k}, n={n}.')
+    logger.info(
+        'Running training and prediction on unpermuted dataset with '
+        'seed=%(seed)s, k=%(k)s, n=%(n)s.',
+        {'seed': seed, 'k': k, 'n': n},
+    )
 
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
@@ -77,7 +80,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
     logger.info('Start training and prediction')
     for i, (train, valid, test, features_selected) in enumerate(data_loader):
 
-        logger.info(f'Total fold {i}: Fit OVR logistic regression classifier')
+        logger.info('Total fold %d: Fit OVR logistic regression classifier', i)
         ovr_predictor = LogisticRegressionOVRPredictor(
             features=features_selected,
             responses=abcd_vars.diagnoses.features,
@@ -85,7 +88,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
             random_state=rnd.randint(0, 999999999)
         )
         ovr_predictor.fit(pd.concat((train, valid)))
-        logger.info(f'Total fold {i}: Save OVR logistic regression predictions')
+        logger.info('Total fold %d: Save OVR logistic regression predictions', i)
         for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
             manager.save_predictions(
                 dataset_name='unpermuted',
@@ -96,7 +99,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
                 y_pred=ovr_predictor.predict(ds[features_selected])
             )
 
-        logger.info(f'Total fold {i}: Fit CCE logistic regression classifier')
+        logger.info('Total fold %d: Fit CCE logistic regression classifier', i)
         lr_cce_predictor = ClassifierChainEnsemble(
             model=LogisticRegressionModel,
             features=features_selected,
@@ -106,7 +109,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
             random_state=rnd.randint(0, 999999999)
         )
         lr_cce_predictor.fit(train, valid)
-        logger.info(f'Total fold {i}: Save CCE logistic regression predictions')
+        logger.info('Total fold %d: Save CCE logistic regression predictions', i)
         for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
             manager.save_predictions(
                 dataset_name='unpermuted',
@@ -117,7 +120,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
                 y_pred=lr_cce_predictor.predict(ds[features_selected])
             )
 
-        logger.info(f'Total fold {i}: Fit CCE XGBoost classifier')
+        logger.info('Total fold %d: Fit CCE XGBoost classifier', i)
         xgboost_cce_predictor = ClassifierChainEnsemble(
             model=DepthwiseXGBPipeline,
             features=features_selected,
@@ -129,7 +132,7 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
             random_state=rnd.randint(0, 999999999)
         )
         xgboost_cce_predictor.fit(train, valid)
-        logger.info(f'Total fold {i}: Save CCE XGBoost predictions')
+        logger.info('Total fold %d: Save CCE XGBoost predictions', i)
         for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
             manager.save_predictions(
                 dataset_name='unpermuted',

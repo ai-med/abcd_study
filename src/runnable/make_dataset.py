@@ -21,7 +21,7 @@ def main(select_one_child_per_family,
     logger = logging.getLogger(__name__)
     logger.info('Creating final data set from raw data.')
 
-    logger.info(f'Load individual dataframes from {RAW_DATA_DIR}')
+    logger.info('Load individual dataframes from %s', RAW_DATA_DIR)
     binary_diagnoses_df = prep.create_binary_diagnoses_df(RAW_DATA_DIR)
     sri24_df = prep.load_sri24_df(RAW_DATA_DIR)
     freesurfer_df = prep.load_freesurfer_df(RAW_DATA_DIR)
@@ -37,14 +37,14 @@ def main(select_one_child_per_family,
     )
 
     if select_one_child_per_family:
-        logger.info(f'Randomly select only one child per family (seed={seed})')
+        logger.info('Randomly select only one child per family (seed=%d)', seed)
         abcd_data_df = prep.select_one_child_per_family(
             abcd_data_path=RAW_DATA_DIR,
             abcd_df=abcd_data_df,
             random_state=seed
         )
 
-    logger.info(f'Save to {PROCESSED_DATA_DIR}')
+    logger.info('Save to %s', PROCESSED_DATA_DIR)
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
     abcd_data_df.to_csv(
         path_or_buf=PROCESSED_DATA_DIR / 'abcd_data.csv', index=True

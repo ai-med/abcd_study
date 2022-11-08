@@ -29,8 +29,11 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
 def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> None:
 
     logger = logging.getLogger(__name__)
-    logger.info(f'Running training and prediction on {num_permutations} '
-                f'permuted datasets with seed={seed}, k={k}, n={n}.')
+    logger.info(
+        'Running training and prediction on %(num_permutations)s '
+        'permuted datasets with seed=%(seed)s, k=%(k)s, n=%(n)s.',
+        {'num_permutations': num_permutations, 'seed': seed, 'k': k, 'n': n},
+    )
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
 
@@ -64,7 +67,7 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
 
     for perm in range(num_permutations):
 
-        logger.info(f'Create permutation no. {perm}')
+        logger.info('Create permutation no. %d', perm)
         abcd_data_permuted = abcd_data.copy()
         abcd_data_permuted[abcd_vars.diagnoses.features] = \
             abcd_data_permuted[abcd_vars.diagnoses.features].sample(
@@ -86,8 +89,9 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
         logger.info('Start training and prediction')
         for i, (train, valid, test, features_selected) in enumerate(data_loader):
 
-            logger.info(f'Permutation {perm}, total fold {i}: Fit OVR logistic regression '
-                        f'classifier')
+            msg_args = {'perm': perm, 'i': i}
+            logger.info('Permutation %(perm)d, total fold %(i)d: Fit OVR logistic regression '
+                        'classifier', msg_args)
             ovr_predictor = LogisticRegressionOVRPredictor(
                 features=features_selected,
                 responses=abcd_vars.diagnoses.features,
@@ -95,8 +99,8 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
                 random_state=rnd.randint(0, 999999999)
             )
             ovr_predictor.fit(pd.concat((train, valid)))
-            logger.info(f'Permutation {perm}, total fold {i}: Save OVR logistic regression '
-                        f'predictions')
+            logger.info('Permutation %(perm)d, total fold %(i)d: Save OVR logistic regression '
+                        'predictions', msg_args)
             for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
                 manager.save_predictions(
                     dataset_name=f'permuted_{perm}',
@@ -107,8 +111,8 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
                     y_pred=ovr_predictor.predict(ds[features_selected])
                 )
 
-            logger.info(f'Permutation {perm}, total fold {i}: Fit CCE logistic regression '
-                        f'classifier')
+            logger.info('Permutation %(perm)d, total fold %(i)d: Fit CCE logistic regression '
+                        'classifier', msg_args)
             lr_cce_predictor = ClassifierChainEnsemble(
                 model=LogisticRegressionModel,
                 features=features_selected,
@@ -118,8 +122,8 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
                 random_state=rnd.randint(0, 999999999)
             )
             lr_cce_predictor.fit(train, valid)
-            logger.info(f'Permutation {perm}, total fold {i}: Save CCE logistic regression '
-                        f'predictions')
+            logger.info('Permutation %(perm)d, total fold %(i)d: Save CCE logistic regression '
+                        'predictions', msg_args)
             for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
                 manager.save_predictions(
                     dataset_name=f'permuted_{perm}',
@@ -130,7 +134,7 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
                     y_pred=lr_cce_predictor.predict(ds[features_selected])
                 )
 
-            logger.info(f'Permutation {perm}, total fold {i}: Fit CCE XGBoost classifier')
+            logger.info('Permutation %(perm)d, total fold %(i)d: Fit CCE XGBoost classifier', msg_args)
             xgboost_cce_predictor = ClassifierChainEnsemble(
                 model=DepthwiseXGBPipeline,
                 features=features_selected,
@@ -142,7 +146,7 @@ def main(seed: int, k: int, n: int, num_permutations: int, features: str) -> Non
                 random_state=rnd.randint(0, 999999999)
             )
             xgboost_cce_predictor.fit(train, valid)
-            logger.info(f'Permutation {perm}, total fold {i}: Save CCE XGBoost predictions')
+            logger.info('Permutation %(perm)d, total fold %(i)d: Save CCE XGBoost predictions', msg_args)
             for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
                 manager.save_predictions(
                     dataset_name=f'permuted_{perm}',
