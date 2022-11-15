@@ -4,6 +4,10 @@ Major Depressive Disorder,current,parent interview,abcd_ksad01,ksads_1_840_p
 Major Depressive Disorder,past,parent interview,abcd_ksad01,ksads_1_842_p
 Major Depressive Disorder,current,youth interview,abcd_ksad501,ksads_1_840_t
 Major Depressive Disorder,past,youth interview,abcd_ksad501,ksads_1_842_t
+Persistent Depressive Disorder (Dysthymia),current,parent interview,abcd_ksad01,ksads_1_843_p
+Persistent Depressive Disorder (Dysthymia),past,parent interview,abcd_ksad01,ksads_1_845_p
+Persistent Depressive Disorder (Dysthymia),current,youth interview,abcd_ksad501,ksads_1_843_t
+Persistent Depressive Disorder (Dysthymia),past,youth interview,abcd_ksad501,ksads_1_845_t
 Bipolar I Disorder,current episode manic,parent interview,abcd_ksad01,ksads_2_830_p
 Bipolar I Disorder,current episode depressed,parent interview,abcd_ksad01,ksads_2_831_p
 Bipolar I Disorder,current episode hypomanic,parent interview,abcd_ksad01,ksads_2_832_p
@@ -82,3 +86,37 @@ Suicide Tendency,Preparatory Actions toward imminent Suicidal behavior Past,yout
 Suicide Tendency,Interrupted Attempt Past,youth interview,abcd_ksad501,ksads_23_963_t
 Suicide Tendency,Aborted Attempt Past,youth interview,abcd_ksad501,ksads_23_964_t
 Suicide Tendency,Suicide Attempt Past,youth interview,abcd_ksad501,ksads_23_965_t
+Generalized Anxiety Disorder,current,parent interview,abcd_ksad01,ksads_10_869_p
+Generalized Anxiety Disorder,past,parent interview,abcd_ksad01,ksads_10_870_p
+Generalized Anxiety Disorder,current,youth interview,abcd_ksad501,ksads_10_869_t
+Generalized Anxiety Disorder,past,youth interview,abcd_ksad501,ksads_10_870_t
+Social Anxiety Disorder,current,parent interview,abcd_ksad01,ksads_8_863_p
+Social Anxiety Disorder,past,parent interview,abcd_ksad01,ksads_8_864_p
+Social Anxiety Disorder,current,youth interview,abcd_ksad501,ksads_8_863_t
+Social Anxiety Disorder,past,youth interview,abcd_ksad501,ksads_8_864_t
+Panic Disorder,current,parent interview,abcd_ksad01,ksads_5_857_p
+Panic Disorder,past,parent interview,abcd_ksad01,ksads_5_858_p
+Agoraphobia,current,parent interview,abcd_ksad01,ksads_6_859_p
+Agoraphobia,past,parent interview,abcd_ksad01,ksads_6_860_p
+Separation Anxiety Disorder,current,parent interview,abcd_ksad01,ksads_7_861_p
+Separation Anxiety Disorder,past,parent interview,abcd_ksad01,ksads_7_862_p
+Selective Mutism,current,parent interview,abcd_ksad01,ksads_25_865_p
+Selective Mutism,past,parent interview,abcd_ksad01,ksads_25_866_p
+Specific Phobia,current,parent interview,abcd_ksad01,ksads_9_867_p
+Specific Phobia,past,parent interview,abcd_ksad01,ksads_9_868_p
+Binge-Eating Disorder,current,parent interview,abcd_ksad01,ksads_13_938_p
+Binge-Eating Disorder,past,parent interview,abcd_ksad01,ksads_13_940_p
+Binge-Eating Disorder,current,youth interview,abcd_ksad501,ksads_13_938_t
+Binge-Eating Disorder,past,youth interview,abcd_ksad501,ksads_13_940_t
+Anorexia Nervosa,current purging subtype,parent interview,abcd_ksad01,ksads_13_929_p
+Anorexia Nervosa,past purging subtype,parent interview,abcd_ksad01,ksads_13_931_p
+Anorexia Nervosa,current restricting subtype,parent interview,abcd_ksad01,ksads_13_932_p
+Anorexia Nervosa,past restricting subtype,parent interview,abcd_ksad01,ksads_13_934_p
+Anorexia Nervosa,current purging subtype,youth interview,abcd_ksad501,ksads_13_929_t
+Anorexia Nervosa,past purging subtype,youth interview,abcd_ksad501,ksads_13_931_t
+Anorexia Nervosa,current restricting subtype,youth interview,abcd_ksad501,ksads_13_932_t
+Anorexia Nervosa,past restricting subtype,youth interview,abcd_ksad501,ksads_13_934_t
+Bulimia Nervosa,current,parent interview,abcd_ksad01,ksads_13_935_p
+Bulimia Nervosa,past,parent interview,abcd_ksad01,ksads_13_936_p
+Bulimia Nervosa,current,youth interview,abcd_ksad501,ksads_13_935_t
+Bulimia Nervosa,past,youth interview,abcd_ksad501,ksads_13_936_t

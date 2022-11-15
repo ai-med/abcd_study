@@ -1,6 +1,7 @@
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve(strict=True).parent
+REPO_ROOT = Path('C:\\Users\\Richard\\Desktop\\ABCD_Study\\Publication\\abcd_paper')
+# REPO_ROOT = Path(__file__).resolve().parent.parent
 RAW_DATA_DIR = REPO_ROOT / 'data' / 'raw'
 PROCESSED_DATA_DIR = REPO_ROOT / 'data' / 'processed'
 RESULTS_DIR = REPO_ROOT / 'results'
