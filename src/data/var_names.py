@@ -345,6 +345,8 @@ class diagnoses(VariableSet):
         'Conduct Disorder',
         'PTSD',
         'Obsessive Compulsive Disorder',
+        'Generalized Anxiety Disorder',
+        'Social Anxiety Disorder'
     ]
 
 # Only ADHD (for testing purposes)

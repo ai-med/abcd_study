@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from definitions import REPO_ROOT, okabe_ito_palette
+from src.definitions import REPO_ROOT, okabe_ito_palette
 
 def load_test_auc_data(methods: List[str]):
     """Loads experimental results and puts AUC values in a format compatible

@@ -1,7 +1,7 @@
 import logging
 import click
 
-from definitions import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from src.definitions import RAW_DATA_DIR, PROCESSED_DATA_DIR
 import src.data.preprocess_data as prep
 
 @click.command()

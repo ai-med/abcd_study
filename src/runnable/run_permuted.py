@@ -6,7 +6,7 @@ import click
 import pandas as pd
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from definitions import REPO_ROOT, PROCESSED_DATA_DIR
+from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
 from src.models.base import ModelIterator
 import src.data.var_names as abcd_vars

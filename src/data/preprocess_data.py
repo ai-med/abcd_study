@@ -1,60 +1,121 @@
+import copy
+from functools import partial
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 
-def create_binary_diagnoses_df(abcd_data_path: Path):
-
+def create_binary_diagnoses_df(
+    abcd_data_path: Path
+):
     subindicators_table = pd.read_csv(abcd_data_path / 'subindicators_table.csv')
 
-    # merge data tables with diagnosis variables into one
-    labels_df = pd.DataFrame(columns=['src_subject_id'])  # initialize empty dataframe
-    opened_files = {}  # dataframes from files already opened
-    for row in subindicators_table.iterrows():
-        filename = row[1]['File']
-        if filename not in opened_files.keys():
-            # file was not opened yet: open and save dataframe in opened_files
-            newfile = pd.read_csv(abcd_data_path / f"{filename}.txt", sep='\t', skiprows=(1, 1))
-            newfile = newfile.loc[newfile['eventname'] == "baseline_year_1_arm_1"]
-            newfile['src_subject_id'] = newfile['src_subject_id'].str.upper()
-            opened_files[filename] = newfile
-        # extract column with score corresponding to 'row' and save in scores_data
-        temp = opened_files[filename][['src_subject_id', row[1]['Feature']]]
-        labels_df = labels_df.merge(right=temp, how='outer', on='src_subject_id')
-    labels_df.index = labels_df['src_subject_id']
-    labels_df = labels_df.drop(columns=['src_subject_id'])
-
-    # Create binary_diagnosis_data using the and/or-rule:
-    # Label a subject diagnosis-positive if at least one of the sub-indicators is positive
-    diagnoses_list = subindicators_table['Diagnosis'].unique()
-    diagnoses_list = [
-        'Bipolar Disorder' if diagnosis == 'Bipolar I Disorder' else diagnosis for diagnosis in diagnoses_list
-    ]
-    diagnoses_list.remove('Bipolar II Disorder') # combine BD I and II to summary BD diagnosis
-    cols = {}
-    for diagnosis in diagnoses_list:
-        # diag_vars: list of sub-indicators related to diagnosis (such as 'current', 'past', 'parent', 'youth')
-        diag_vars = None
-        if diagnosis == 'Bipolar Disorder':
-            diag_vars = subindicators_table.loc[
-                subindicators_table['Diagnosis'].isin(['Bipolar I Disorder', 'Bipolar II Disorder']), 'Feature'
-            ]
-        else:
-            diag_vars = subindicators_table.loc[subindicators_table['Diagnosis'] == diagnosis, 'Feature']
-        # Create binary diagnosis label from sub-indicators
-        # Rules: if at least one of the sub-indicators is True, the binary diagnosis is True
-        collapsed_diagnosis = labels_df[diag_vars].sum(axis=1) > 0
-        # If no sub-indicator is True: If at least one variable is unknown (NaN), assume diagnosis also to be unknown
-        # (NaN). Else, if all variables are known, the diagnosis is False.
-        rowsNaN = (
-                (labels_df[diag_vars].sum(axis=1) == 0) &
-                (labels_df[diag_vars].isna().sum(axis=1) > 0)
-        )
-        collapsed_diagnosis.loc[rowsNaN] = np.nan
-        cols[diagnosis] = collapsed_diagnosis
-    binary_diagnoses_df = pd.DataFrame(data=cols)
+    # aggregate diagnoses via OR rule and remove '_or_rule' suffix
+    binary_diagnoses_df = create_binary_diagnoses_df_detailed(
+        abcd_data_path=abcd_data_path,
+        subindicators_table=subindicators_table,
+        or_rule=True,
+        and_rule=False
+    )
+    binary_diagnoses_df = binary_diagnoses_df.rename(columns={
+        col: col.replace('_or_rule', '') for col in binary_diagnoses_df.columns
+    })
 
     return binary_diagnoses_df
+
+
+def create_binary_diagnoses_df_detailed(
+        abcd_data_path: Path,
+        subindicators_table: pd.DataFrame,
+        or_rule: bool,
+        and_rule: bool
+):
+    # we want to summarize Bipolar I and II Disorder
+    subindicators_table_ = copy.deepcopy(subindicators_table)
+    subindicators_table_ = subindicators_table_.replace(to_replace='Bipolar I Disorder',
+                                                        value='Bipolar Disorder')
+    subindicators_table_ = subindicators_table_.replace(to_replace='Bipolar II Disorder',
+                                                        value='Bipolar Disorder')
+
+    # open files
+    opened_dfs = []
+    for filename in subindicators_table_['File'].unique():
+        columns = list(
+            subindicators_table_[subindicators_table_['File'] == filename]['Feature']) + [
+                      'src_subject_id']
+        new_file = pd.read_csv(abcd_data_path / f'{filename}.txt', sep='\t', skiprows=(1, 1))
+        # we are only interested in the baseline assessment of the ABCD study
+        new_file = new_file.loc[new_file['eventname'] == "baseline_year_1_arm_1"]
+        # capitalize subject id to avoid false mismatches lateron
+        new_file['src_subject_id'] = new_file['src_subject_id'].str.upper()
+        # select only relevant columns and save to list
+        new_file = new_file[columns]
+        opened_dfs.append(new_file)
+
+    # merge to one df
+    raw_subindicators_df = opened_dfs[0]
+    for df in opened_dfs[1:]:
+        raw_subindicators_df = raw_subindicators_df.merge(right=df, how='outer',
+                                                          on='src_subject_id')
+    raw_subindicators_df.index = raw_subindicators_df['src_subject_id']
+    raw_subindicators_df = raw_subindicators_df.drop(columns=['src_subject_id'])
+
+    # first, apply or-rule for labels 'within interviewees'
+    # e.g. if MDD has been diagnosed either at present or in the past in only the youth interview,
+    # the youth label is positive
+    dict_series = {}
+    for diagnosis in subindicators_table_['Diagnosis'].unique():
+        for interviewee in ['parent', 'youth']:
+            cols = subindicators_table_[
+                (subindicators_table_['Diagnosis'] == diagnosis) & \
+                (subindicators_table_['Interview'] == f'{interviewee} interview')
+                ]['Feature']
+            if len(cols) == 0:
+                break
+            summarize_or = partial(summarize, rule='or')
+            dict_series[f'{diagnosis}_{interviewee}'] = raw_subindicators_df[cols].apply(
+                summarize_or, axis=1)
+    interviewee_labels_df = pd.DataFrame(dict_series)
+
+    # summarize within-interviewee labels via and/or-rule
+    dict_series = {}
+    for diagnosis in subindicators_table_['Diagnosis'].unique():
+        cols = [f'{diagnosis}_{interviewee}' for interviewee in ['parent', 'youth'] \
+                if f'{diagnosis}_{interviewee}' in interviewee_labels_df.columns]
+        if or_rule:
+            summarize_or = partial(summarize, rule='or')
+            dict_series[f'{diagnosis}_or_rule'] = interviewee_labels_df[cols].apply(summarize_or,
+                                                                                    axis=1)
+        if and_rule:
+            summarize_and = partial(summarize, rule='and')
+            dict_series[f'{diagnosis}_and_rule'] = interviewee_labels_df[cols].apply(summarize_and,
+                                                                                     axis=1)
+
+    return pd.DataFrame(dict_series)
+
+
+def summarize(x: pd.Series, rule: str):
+    assert rule == 'or' or rule == 'and', "rule keyword can only be 'or' or 'and'"
+    if rule == 'or':
+        # if at leats one positive value -> overall positive
+        if 1.0 in x.values:
+            return 1.0
+        # if no positive value and at least one NaN -> we cannot know -> overall NaN
+        elif x.isnull().any():
+            return np.nan
+        # if only negative values -> safely overall negative
+        else:
+            return 0.0
+    elif rule == 'and':
+        # if all values positive -> overall positive
+        if x.all() and not x.isnull().any():
+            return 1.0
+        # if some values negative -> overall negative
+        elif 0.0 in x.values:
+            return 0.0
+        # if only positive and NaN values -> we cannot know -> overall NaN
+        else:
+            return np.nan
 
 
 def load_sri24_df(abcd_data_path: Path) -> pd.DataFrame:
