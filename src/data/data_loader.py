@@ -1,4 +1,5 @@
 from functools import cached_property
+import logging
 from typing import List, Tuple
 
 import pandas as pd
@@ -8,6 +9,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import RobustScaler
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.pipeline import make_pipeline
+
+from .var_names import all_brain_features
+
+LOG = logging.getLogger(__name__)
 
 
 def encode_multilabel(multilabel_data: pd.DataFrame):
@@ -95,7 +100,9 @@ class RepeatedStratifiedKFoldDataloader:
 
     def clean(self, df: pd.DataFrame) -> pd.DataFrame:
         # Prepare dataset: Remove subjects with missing features, responses or confounders
-        return df.dropna(subset=self.features + self.confounders + self.responses)
+        df_clean = df.dropna(subset=all_brain_features.features + self.confounders + self.responses)
+        LOG.info("Dropping rows with missing values: %d -> %d", df.shape[0], df_clean.shape[0])
+        return df_clean
 
     @cached_property
     def df(self) -> pd.DataFrame:
