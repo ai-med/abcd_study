@@ -79,7 +79,7 @@ class ResultManager:
         #   Write to TensorBoard
         for key in self.roc_auc_values[dataset_name][model_name][split_set][fold].keys():
             # Track ROC AUC values
-            self.logger.experiment.add_scalar(
+            self.logger.add_scalar(
                 f"{dataset_name}/{model_name}/{split_set}/ROC_AUC_mean_{key}",
                 self.roc_auc_values[dataset_name][model_name][split_set][fold][key],
                 global_step=fold
@@ -90,7 +90,7 @@ class ResultManager:
                 roc_auc_list.append(
                     self.roc_auc_values[dataset_name][model_name][split_set][idx][key]
                 )
-            self.logger.experiment.add_histogram(
+            self.logger.add_histogram(
                 f"{dataset_name}/{model_name}/{split_set}/ROC_AUC_{key}",
                 np.array(roc_auc_list),
                 global_step=fold

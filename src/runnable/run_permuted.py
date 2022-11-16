@@ -4,7 +4,7 @@ from typing import List
 
 import click
 import pandas as pd
-from pytorch_lightning.loggers import TensorBoardLogger
+from torch.utils.tensorboard import SummaryWriter
 
 from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
@@ -55,8 +55,8 @@ def main(
     logger.info('Load data')
     abcd_data = pd.read_csv(DATA_DIR, index_col='src_subject_id')
 
-    tensorboard_logger = TensorBoardLogger(
-        REPO_ROOT / 'tensorboard' / f'seed={seed}k={k}'
+    tensorboard_logger = SummaryWriter(
+        log_dir=str(REPO_ROOT / 'tensorboard' / f'seed{seed}_k{k}_n{n}' / 'permuted')
     )
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
@@ -131,6 +131,7 @@ def main(
                         y_true=ds.loc[:, abcd_vars.diagnoses.features],
                         y_pred=predictor.predict(ds.loc[:, features_selected])
                     )
+                tensorboard_logger.flush()
 
         logger.info('Save final ROC AUC values')
         manager.finish()

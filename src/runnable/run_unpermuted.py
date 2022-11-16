@@ -3,7 +3,7 @@ import click
 import random
 
 import pandas as pd
-from pytorch_lightning.loggers import TensorBoardLogger
+from torch.utils.tensorboard import SummaryWriter
 
 from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
@@ -61,7 +61,9 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
         random_state=rnd.randint(0, 999999999),
         ignore_adjustment=unadjusted
     )
-    tensorboard_logger = TensorBoardLogger(REPO_ROOT / 'tensorboard')
+    tensorboard_logger = SummaryWriter(
+        log_dir=str(REPO_ROOT / 'tensorboard' /  f'seed{seed}_k{k}_n{n}' / 'unpermuted')
+    )
     manager = ResultManager(
         tensorboard_logger=tensorboard_logger,
         save_root=REPO_ROOT / 'results',
