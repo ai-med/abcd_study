@@ -4,6 +4,7 @@ from typing import List
 
 import click
 import pandas as pd
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
@@ -79,6 +80,8 @@ def main(
     else:
         raise AssertionError()
 
+    pbar = tqdm(total=num_permutations * n * k * 3)
+
     for perm in range(num_permutations):
 
         logger.info('Create permutation no. %d', perm)
@@ -132,6 +135,7 @@ def main(
                         y_pred=predictor.predict(ds.loc[:, features_selected])
                     )
                 tensorboard_logger.flush()
+                pbar.update()
 
         logger.info('Save final ROC AUC values')
         manager.finish()

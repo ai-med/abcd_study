@@ -4,6 +4,7 @@ import random
 from typing import List
 
 import pandas as pd
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
@@ -88,6 +89,8 @@ def main(
         }
     )
 
+    pbar = tqdm(total=n * k * 3)
+
     logger.info('Start training and prediction')
     for i, (train, valid, test, features_selected) in enumerate(data_loader):
         model_iter = ModelIterator(train, valid, features_selected, rnd)
@@ -110,6 +113,7 @@ def main(
                     y_pred=predictor.predict(ds.loc[:, features_selected])
                 )
             tensorboard_logger.flush()
+            pbar.update()
 
     logger.info('Save final ROC AUC values')
     manager.finish()
