@@ -1,17 +1,14 @@
 import logging
 import click
 import random
+from typing import List
 
 import pandas as pd
 from torch.utils.tensorboard import SummaryWriter
 
 from src.definitions import REPO_ROOT, PROCESSED_DATA_DIR
 from src.data.data_loader import RepeatedStratifiedKFoldDataloader
-from src.models.classifier_chain import ClassifierChainEnsemble
-from src.models.logistic_regression import (
-    LogisticRegressionOVRPredictor, LogisticRegressionModel
-)
-from src.models.xgboost_pipeline import DepthwiseXGBPipeline
+from src.models.base import ModelIterator
 import src.data.var_names as abcd_vars
 from src.models.evaluation import ResultManager
 
@@ -27,7 +24,24 @@ DATA_DIR = PROCESSED_DATA_DIR / 'abcd_data.csv'
               type=click.Choice(['all', 'freesurfer', 'sri']),
               default='freesurfer',
               help='Which subset of cortical and subcortical features to use.')
-def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
+@click.option('--select-fold', multiple=True, type=int)
+@click.option('--select-model', multiple=True)
+def main(
+    seed: int,
+    k: int,
+    n: int,
+    unadjusted: bool,
+    features: str,
+    select_fold: List[int],
+    select_model: List[str],
+) -> None:
+    def should_run(fold: int, model_name: str) -> bool:
+        if len(select_fold) > 0 and fold not in select_fold:
+            return False
+        if len(select_model) > 0 and model_name not in select_model:
+            return False
+        return True
+
 
     logger = logging.getLogger(__name__)
     logger.info(
@@ -73,77 +87,29 @@ def main(seed: int, k: int, n: int, unadjusted: bool, features: str) -> None:
             'random_state': seed, 'n': n, 'k': k, 'unadjusted': unadjusted
         }
     )
-    logistic_regression_args = {
-        'solver': 'lbfgs',
-        'max_iter': 500,
-        'class_weight': 'balanced'
-    }
 
     logger.info('Start training and prediction')
     for i, (train, valid, test, features_selected) in enumerate(data_loader):
+        model_iter = ModelIterator(train, valid, features_selected, rnd)
+        for model_name, predictor, fit_data in model_iter:
+            if not should_run(i, model_name):
+                logger.info('Skipping fold %d, model %s', i, model_name)
+                continue
 
-        logger.info('Total fold %d: Fit OVR logistic regression classifier', i)
-        ovr_predictor = LogisticRegressionOVRPredictor(
-            features=features_selected,
-            responses=abcd_vars.diagnoses.features,
-            model_args=logistic_regression_args,
-            random_state=rnd.randint(0, 999999999)
-        )
-        ovr_predictor.fit(pd.concat((train, valid)))
-        logger.info('Total fold %d: Save OVR logistic regression predictions', i)
-        for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
-            manager.save_predictions(
-                dataset_name='unpermuted',
-                model_name='logistic_regression_ovr',
-                fold=i,
-                split_set=ds_str,
-                y_true=ds[abcd_vars.diagnoses.features],
-                y_pred=ovr_predictor.predict(ds[features_selected])
-            )
+            logger.info('Total fold %d: Fit %s', i, model_name)
+            predictor.fit(*fit_data)
 
-        logger.info('Total fold %d: Fit CCE logistic regression classifier', i)
-        lr_cce_predictor = ClassifierChainEnsemble(
-            model=LogisticRegressionModel,
-            features=features_selected,
-            responses=abcd_vars.diagnoses.features,
-            num_chains=10,
-            model_args=logistic_regression_args,
-            random_state=rnd.randint(0, 999999999)
-        )
-        lr_cce_predictor.fit(train, valid)
-        logger.info('Total fold %d: Save CCE logistic regression predictions', i)
-        for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
-            manager.save_predictions(
-                dataset_name='unpermuted',
-                model_name='logistic_regression_cce',
-                fold=i,
-                split_set=ds_str,
-                y_true=ds[abcd_vars.diagnoses.features],
-                y_pred=lr_cce_predictor.predict(ds[features_selected])
-            )
-
-        logger.info('Total fold %d: Fit CCE XGBoost classifier', i)
-        xgboost_cce_predictor = ClassifierChainEnsemble(
-            model=DepthwiseXGBPipeline,
-            features=features_selected,
-            responses=abcd_vars.diagnoses.features,
-            num_chains=10,
-            model_args={
-                'n_calls': 30
-            },
-            random_state=rnd.randint(0, 999999999)
-        )
-        xgboost_cce_predictor.fit(train, valid)
-        logger.info('Total fold %d: Save CCE XGBoost predictions', i)
-        for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
-            manager.save_predictions(
-                dataset_name='unpermuted',
-                model_name='xgboost_cce',
-                fold=i,
-                split_set=ds_str,
-                y_true=ds[abcd_vars.diagnoses.features],
-                y_pred=xgboost_cce_predictor.predict(ds[features_selected])
-            )
+            logger.info('Total fold %d: Save %s predictions', i, model_name)
+            for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
+                manager.save_predictions(
+                    dataset_name='unpermuted',
+                    model_name=model_name,
+                    fold=i,
+                    split_set=ds_str,
+                    y_true=ds.loc[:, abcd_vars.diagnoses.features],
+                    y_pred=predictor.predict(ds.loc[:, features_selected])
+                )
+            tensorboard_logger.flush()
 
     logger.info('Save final ROC AUC values')
     manager.finish()
