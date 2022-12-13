@@ -21,10 +21,9 @@ def load_results(filename: Path) -> pd.DataFrame:
     return df
 
 
-def find_roc_auc(
+def find_roc_auc_unpermuted(
     base_dir: Path,
     segmentation: str,
-    kind: str,
     classifier: str,
     split: str,
 ) -> Iterable[Path]:
@@ -35,7 +34,45 @@ def find_roc_auc(
             if not p1.is_dir():
                 continue
 
-            f = p1 / kind / classifier / split / 'roc_auc.csv'
+            f = p1 / 'unpermuted' / classifier / split / 'roc_auc.csv'
+            if f.exists():
+                yield f
+
+
+def find_roc_auc_permuted_separate(
+    base_dir: Path,
+    segmentation: str,
+    classifier: str,
+    split: str,
+    n_repeats: int = 500,
+) -> Iterable[Path]:
+    for n in range(n_repeats):
+        p0 = base_dir / f"{segmentation}_0000_p{n:03d}_{classifier}"
+        if not p0.is_dir():
+            continue
+        for p1 in (p0 / 'results').iterdir():
+            if not p1.is_dir():
+                continue
+
+            f = p1 / f"permuted_{n}" / classifier / split / 'roc_auc.csv'
+            if f.exists():
+                yield f
+
+
+def find_roc_auc_permuted_combined(
+    base_dir: Path,
+    segmentation: str,
+    classifier: str,
+    split: str,
+    n_repeats: int = 500,
+) -> Iterable[Path]:
+    p0 = base_dir / f"{segmentation}_0000_{classifier}" / 'results'
+    for n in range(n_repeats):
+        for p1 in p0.iterdir():
+            if not p1.is_dir():
+                continue
+
+            f = p1 / f"permuted_{n}" / classifier / split / 'roc_auc.csv'
             if f.exists():
                 yield f
 
@@ -46,10 +83,18 @@ def collect_results(
     kind: str = 'unpermuted',
     split: str = 'test',
 ) -> pd.DataFrame:
+    if kind == 'unpermuted':
+        find_fn = find_roc_auc_unpermuted
+    elif kind == 'permuted':
+        find_fn = find_roc_auc_permuted_separate
+        # find_fn = find_roc_auc_permuted_combined
+    else:
+        raise AssertionError()
+
     df = pd.concat([
         load_results(f).assign(Method=clsf, filename=str(f)).set_index('Method', append=True)
         for clsf in classifiers
-        for f in find_roc_auc(base_dir, segmentation, kind, clsf, split)
+        for f in find_fn(base_dir, segmentation, clsf, split)
     ], axis=0)
     df.sort_index(inplace=True)
     return df
