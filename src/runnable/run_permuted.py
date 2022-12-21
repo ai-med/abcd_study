@@ -128,7 +128,7 @@ def main(
                 for ds_str, ds in zip(['train', 'valid', 'test'], [train, valid, test]):
                     manager.save_predictions(
                         dataset_name=f'permuted_{perm}',
-                        model_name='logistic_regression_ovr',
+                        model_name=model_name,
                         fold=i,
                         split_set=ds_str,
                         y_true=ds.loc[:, abcd_vars.diagnoses.features],
