@@ -1,6 +1,8 @@
 import click
+from itertools import product
 from pathlib import Path
 from typing import Iterable
+import warnings
 import pandas as pd
 
 classifiers = (
@@ -30,7 +32,7 @@ def find_roc_auc_unpermuted(
     for p0 in base_dir.glob(f"{segmentation}_*"):
         if not p0.is_dir():
             continue
-        for p1 in (p0 / 'results').iterdir():
+        for p1 in (p0 / 'results').glob('run_unpermuted_*'):
             if not p1.is_dir():
                 continue
 
@@ -46,17 +48,20 @@ def find_roc_auc_permuted_separate(
     split: str,
     n_repeats: int = 500,
 ) -> Iterable[Path]:
-    for n in range(n_repeats):
-        p0 = base_dir / f"{segmentation}_0000_p{n:03d}_{classifier}"
+    for fold, n in product(range(5), range(n_repeats)):
+        p0 = base_dir / f"{segmentation}_{fold:04d}_p{n:03d}_{classifier}"
+        # p0 = base_dir / f"{segmentation}_{fold:04d}_{classifier}"
         if not p0.is_dir():
             continue
-        for p1 in (p0 / 'results').iterdir():
+        for p1 in (p0 / 'results').glob('run_permuted_*'):
             if not p1.is_dir():
                 continue
 
             f = p1 / f"permuted_{n}" / classifier / split / 'roc_auc.csv'
             if f.exists():
                 yield f
+            else:
+                warnings.warn(f"{f} is missing")
 
 
 def find_roc_auc_permuted_combined(
@@ -66,15 +71,18 @@ def find_roc_auc_permuted_combined(
     split: str,
     n_repeats: int = 500,
 ) -> Iterable[Path]:
-    p0 = base_dir / f"{segmentation}_0000_{classifier}" / 'results'
+    p0 = base_dir
+    # p0 = base_dir / f"{segmentation}_0000_{classifier}" / 'results'
     for n in range(n_repeats):
-        for p1 in p0.iterdir():
+        for p1 in p0.glob(f'run_permuted_*_{segmentation}'):
             if not p1.is_dir():
                 continue
 
             f = p1 / f"permuted_{n}" / classifier / split / 'roc_auc.csv'
             if f.exists():
                 yield f
+            else:
+                warnings.warn(f"{f} is missing")
 
 
 def collect_results(
@@ -86,8 +94,8 @@ def collect_results(
     if kind == 'unpermuted':
         find_fn = find_roc_auc_unpermuted
     elif kind == 'permuted':
-        find_fn = find_roc_auc_permuted_separate
-        # find_fn = find_roc_auc_permuted_combined
+        # find_fn = find_roc_auc_permuted_separate
+        find_fn = find_roc_auc_permuted_combined
     else:
         raise AssertionError()
 
@@ -113,6 +121,7 @@ def main(directory, kind):
         d = collect_results(Path(directory), seg, kind=kind)
         print(f"Found {d.shape[0]} results for {seg}:")
         print(d.groupby(level='Method').size())
+        print(d.groupby('fold').size())
         out_file = f'roc_auc_{seg}_{kind}.csv'
         print(f"Writing {out_file}")
         d.to_csv(out_file)
