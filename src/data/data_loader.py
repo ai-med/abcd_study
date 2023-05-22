@@ -1,4 +1,6 @@
-from typing import List
+from functools import cached_property
+import logging
+from typing import List, Tuple
 
 import pandas as pd
 import numpy as np
@@ -7,6 +9,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import RobustScaler
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.pipeline import make_pipeline
+
+from .var_names import all_brain_features
+
+LOG = logging.getLogger(__name__)
 
 
 def encode_multilabel(multilabel_data: pd.DataFrame):
@@ -25,7 +31,7 @@ def train_test_split_noproblem(df: pd.DataFrame,
                                test_size: float,
                                stratify,
                                random_state: int = None)\
-        -> (pd.DataFrame, pd.DataFrame):
+        -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Some codes occur only once in the dataset. train_test_split does not work
     # then. For this reason we need to exclude them and split them randomly
     # afterwards.
@@ -78,23 +84,29 @@ class RepeatedStratifiedKFoldDataloader:
                  val_ratio: float,
                  random_state: int = None,
                  ignore_adjustment: bool = False):
-        self.df = dataframe
         self.features = features
         self.responses = responses
         self.confounders = confounders
+        self.dataframe = self.clean(dataframe)
         self.n = n
         self.k = k
         self.val_ratio = val_ratio
         self.random_state = random_state
         self.ignore_adjustment = ignore_adjustment
-        self.clean()
+
         # Encode multilabel subject assignment as one number. This will be
         # necessary for stratification with RepeatedStratifiedKFold.
-        self.encoded_responses = encode_multilabel(self.df[self.responses])
+        self.encoded_responses = encode_multilabel(self.dataframe.loc[:, self.responses])
 
-    def clean(self):
+    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
         # Prepare dataset: Remove subjects with missing features, responses or confounders
-        self.df = self.df.dropna(subset=self.features + self.confounders + self.responses)
+        df_clean = df.dropna(subset=all_brain_features.features + self.confounders + self.responses)
+        LOG.info("Dropping rows with missing values: %d -> %d", df.shape[0], df_clean.shape[0])
+        return df_clean
+
+    @cached_property
+    def df(self) -> pd.DataFrame:
+        return self.dataframe.loc[:, self.features + self.confounders + self.responses]
 
     @property
     def df_size(self):
@@ -184,7 +196,7 @@ class RepeatedStratifiedKFoldDataloader:
 
     def transform_features(self,
                            dataframe: pd.DataFrame,
-                           train_indices: np.array) -> (pd.DataFrame, List[str]):
+                           train_indices: np.array) -> Tuple[pd.DataFrame, List[str]]:
         """
         In order, apply basic feature selection and linear transformation to
         features:

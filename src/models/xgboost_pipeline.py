@@ -22,23 +22,23 @@ OptStrList = Optional[List[str]]
 
 class ErrorFunctions:
     """Contains static error function classes."""
-    
+
     class BaseErrorFunction(ABC):
         """Parent class of error function classes.
         These are callable classes and contain the name of the error function.
         """
-        
+
         name = None
-        
+
         @abstractmethod
         def __call__(self,
                      y_pred: pd.Series,
                      y_true: pd.Series) -> float:
             pass
-    
+
     class log_loss(BaseErrorFunction):
         """Aka. binary cross entropy"""
-    
+
         name = "log_loss"
 
         def __call__(self,
@@ -47,12 +47,12 @@ class ErrorFunctions:
             if isinstance(y_pred, pd.Series):
                 y_true, y_pred = y_true.align(y_pred, axis=0, join='inner')
             return log_loss(y_true, y_pred, eps=1e-5, labels=[0, 1])
-        
+
     class negative_roc_auc(BaseErrorFunction):
         """Area under ROC curve, times (-1)"""
-        
+
         name = "negative_roc_auc"
-        
+
         def __call__(self,
                      y_pred: pd.Series,
                      y_true: pd.Series) -> float:
@@ -107,7 +107,7 @@ class BasePipeline(metaclass=ABCMeta):
         search_objective = make_objective_fn()
 
         LOG.info('Training model with Bayesian hyper-parameter search')
-        
+
         res_gp = gp_minimize(
             func=search_objective,
             dimensions=self.search_space,

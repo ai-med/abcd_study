@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -9,14 +9,67 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from src.definitions import REPO_ROOT, okabe_ito_palette
+from src.definitions import RESULTS_DIR, okabe_ito_palette
 
-def load_test_auc_data(methods: List[str]):
+def read_results_csv(filename):
+    df = pd.read_csv(filename, index_col=0)
+    if "filename" in df.columns:
+        df.drop("filename", axis=1, inplace=True)
+    if "Method" in df.columns:
+        df.drop("Method", axis=1, inplace=True)
+    return df
+
+
+def results_file_iter(
+    methods: List[str],
+    segmentation: str,
+    permuted: bool,
+    adjusted: bool,
+):
+    def is_adjusted(afile):
+        return not afile.endswith('unadjusted')
+
+    def is_unadjusted(afile):
+        return afile.endswith('unadjusted')
+
+    def is_permuted(afile):
+        return afile.startswith('run_permuted')
+
+    def is_unpermuted(afile):
+        return afile.startswith('run_unpermuted')
+
+    filters = []
+    if permuted:
+        filters.append(is_permuted)
+    else:
+        filters.append(is_unpermuted)
+
+    if adjusted:
+        filters.append(is_adjusted)
+    else:
+        filters.append(is_unadjusted)
+
+    subfolder_prefix = 'permuted' if permuted else 'unpermuted'
+
+    for file in os.listdir(RESULTS_DIR):
+        if all(f(file) for f in filters):
+            for sub_folder in os.listdir(RESULTS_DIR / file):
+                if sub_folder.startswith(subfolder_prefix):
+                    for method in methods:
+                        yield (
+                            method,
+                            RESULTS_DIR / file / sub_folder / method / 'test'
+                            / f'roc_auc_{segmentation}_{subfolder_prefix}.csv'
+                        )
+
+
+def load_test_auc_data(methods: List[str], segmentation: str = "freesurfer"):
     """Loads experimental results and puts AUC values in a format compatible
     with 'auc_violinplot'
 
     Args:
         methods: List of methods (models) that should be included in output
+        segmentation: Name of segmentation algorithm.
 
     Returns:
         mean_unpermuted_aucs: Dictionary of mean AUCs on original dataset
@@ -27,32 +80,23 @@ def load_test_auc_data(methods: List[str]):
     unpermuted_aucs = {m: {} for m in methods}
     mean_unpermuted_aucs = {m: {} for m in methods}
     permuted_aucs = {'Method': [], 'Diagnosis': [], 'mean_auc': []}
-    for file in os.listdir(REPO_ROOT / 'results'):
-        if file.startswith('run_unpermuted') and not file.endswith('unadjusted'):
-            for unpermuted_folder in os.listdir(REPO_ROOT / 'results' / file):
-                if unpermuted_folder.startswith('unpermuted'):
-                    for method in methods:
-                        df = pd.read_csv(
-                            REPO_ROOT / 'results' / file / unpermuted_folder /
-                            method / 'test' / 'roc_auc.csv', index_col=0
-                        )
-                        for diagnosis in df.columns:
-                            if diagnosis not in unpermuted_aucs[method].keys():
-                                unpermuted_aucs[method][diagnosis] = []
-                            unpermuted_aucs[method][diagnosis].extend(
-                                list(df[diagnosis])
-                            )
-        elif file.startswith('run_permuted'):
-            for permuted_folder in os.listdir(REPO_ROOT / 'results' / file):
-                if permuted_folder.startswith('permuted'):
-                    for method in methods:
-                        for diagnosis, mean_auc in pd.read_csv(
-                            REPO_ROOT / 'results' / file / permuted_folder /
-                            method / 'test' / 'roc_auc.csv', index_col=0
-                        ).mean().items():
-                            permuted_aucs['Method'].append(method)
-                            permuted_aucs['Diagnosis'].append(diagnosis)
-                            permuted_aucs['mean_auc'].append(mean_auc)
+    for method, file in results_file_iter(methods, segmentation, permuted=False, adjusted=True):
+        df = read_results_csv(file)
+        assert df.shape[0] == 150
+        for diagnosis, series in df.items():
+            if diagnosis not in unpermuted_aucs[method].keys():
+                unpermuted_aucs[method][diagnosis] = []
+            unpermuted_aucs[method][diagnosis].extend(
+                series.values
+            )
+
+    for method, file in results_file_iter(methods, segmentation, permuted=True, adjusted=True):
+        df = read_results_csv(file)
+        assert df.shape[0] == 5
+        for diagnosis, mean_auc in df.mean().items():
+            permuted_aucs['Method'].append(method)
+            permuted_aucs['Diagnosis'].append(diagnosis)
+            permuted_aucs['mean_auc'].append(mean_auc)
 
     for method in methods:
         for diagnosis in unpermuted_aucs[method].keys():
@@ -61,6 +105,28 @@ def load_test_auc_data(methods: List[str]):
             )
 
     return mean_unpermuted_aucs, pd.DataFrame(permuted_aucs), unpermuted_aucs
+
+
+def load_test_auc_unadjusted_data(methods: List[str], segmentation: str = "freesurfer"):
+    unperm_unadj_aucs = {m: {} for m in methods}
+    mean_unperm_unadj_aucs = {m: {} for m in methods}
+
+    for method, file in results_file_iter(methods, segmentation, permuted=False, adjusted=False):
+        df = read_results_csv(file)
+        for diagnosis in df.columns:
+            if diagnosis not in unperm_unadj_aucs[method].keys():
+                unperm_unadj_aucs[method][diagnosis] = []
+            unperm_unadj_aucs[method][diagnosis].extend(
+                list(df[diagnosis])
+            )
+
+    for method in methods:
+        for diagnosis in unperm_unadj_aucs[method].keys():
+            mean_unperm_unadj_aucs[method][diagnosis] = np.mean(
+                unperm_unadj_aucs[method][diagnosis]
+            )
+
+    return mean_unperm_unadj_aucs, unperm_unadj_aucs
 
 
 def auc_violinplot(permuted_aucs: pd.DataFrame,
@@ -167,7 +233,7 @@ def auc_violinplot(permuted_aucs: pd.DataFrame,
             )
 
     #Show p-values
-    def mark_significance(p_val: float) -> (str, str):
+    def mark_significance(p_val: float) -> Tuple[str, str]:
         if p_val <= alpha:
             str1 = '\\pmb{{'
             str2 = '}}'
