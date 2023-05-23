@@ -1,0 +1,95 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Can We Diagnose Mental Disorders in Children? A
+  Large-Scale Assessment of Machine Learning on Structural
+  Neuroimaging of 6916 Children in the ABCD Study
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Richard
+    family-names: Gaus
+    affiliation: >-
+      The Lab for Artificial Intelligence in Medical Imaging
+      (AI-Med), Department of Child and Adolescent
+      Psychiatry, Ludwig-Maximilians-Universität, Munich,
+      Germany
+  - family-names: Pölsterl
+    given-names: Sebastian
+    orcid: 'https://orcid.org/0000-0002-1607-7550'
+    affiliation: >-
+      The Lab for Artificial Intelligence in Medical Imaging
+      (AI-Med), Department of Child and Adolescent
+      Psychiatry, Ludwig-Maximilians-Universität, Munich,
+      Germany
+  - family-names: Greimel
+    given-names: Ellen
+    affiliation: >-
+      Department of Child and Adolescent Psychiatry,
+      Psychosomatics and Psychotherapy, University Hospital,
+      Ludwig-Maximilians-Universität, Munich, Germany
+  - given-names: Gerd
+    family-names: Schulte-Körne
+    affiliation: >-
+      Department of Child and Adolescent Psychiatry,
+      Psychosomatics and Psychotherapy, University Hospital,
+      Ludwig-Maximilians-Universität, Munich, Germany
+  - given-names: Christian
+    family-names: Wachinger
+    affiliation: >-
+      Technical University of Munich, School of Medicine,
+      Department of Radiology, Munich, Germany
+    orcid: 'https://orcid.org/0000-0002-3652-1874'
+repository-code: 'https://github.com/ai-med/abcd_study'
+abstract: >-
+  Background: Prediction of mental disorders based on
+  neuroimaging is an emerging area of research with
+  promising first results in adults. However, research on
+  the unique demographic of children is underrepresented and
+  it is doubtful whether findings obtained on adults can be
+  transferred to children. 
+
+  Methods: Using data from 6,916 children aged 9-10 in the
+  multicenter Adolescent Brain Cognitive Development (ABCD)
+  study, we extracted 136 regional volume and thickness
+  measures from structural magnetic resonance images to
+  rigorously evaluate the capabilities of machine learning
+  to predict ten different psychiatric disorders: major
+  depressive disorder, bipolar disorder (BD), psychotic
+  symptoms, attention deficit hyperactivity disorder (ADHD),
+  oppositional defiant disorder, conduct disorder,
+  post-traumatic stress disorder, obsessive-compulsive
+  disorder, generalized anxiety disorder, and social anxiety
+  disorder. For each disorder, we performed cross-validation
+  and assessed whether models discovered a true pattern in
+  the data via permutation testing.
+
+  Results: Two of ten disorders can be detected with
+  statistical significance when using advanced models that
+  (i) allow for non-linear relationships between
+  neuroanatomy and disorder, (ii) model interdependencies
+  between disorders, and (iii) avoid confounding due to
+  sociodemographic factors: ADHD (AUROC = 0.567, p = 0.002)
+  and BD (AUROC = 0.551, p = 0.002). In contrast,
+  traditional models perform consistently worse and predict
+  only ADHD with statistical significance (AUROC = 0.529, p
+  = 0.002).
+
+  Conclusion: While the modest absolute classification
+  performance does not warrant application in the clinic,
+  our results provide empirical evidence that embracing and
+  explicitly accounting for the complexities of mental
+  disorders via advanced machine learning models can
+  discover patterns that would remain hidden with
+  traditional models.
+keywords:
+  - neuroimaging
+  - machine learning
+  - ABCD study
+  - mental disorders
+  - confounding
+license: MIT
