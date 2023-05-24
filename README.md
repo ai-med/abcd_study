@@ -15,9 +15,12 @@ Getting started
    acspsw03.txt
    btsv01.txt
    ```
-   Additional files (contact repository creator for these files):
+   A table with FreeSurfer features (you need to run FreeSurfer on the sMRI data of the ABCD Study):
    ```
    abcd_freesurfer.csv
+   ```
+   A table with processed sociodemographic features. These features are the same as in the ABCD Neurocognitive Prediction Challenge. The respective R code can be found on the challenge website (https://sibis.sri.com/abcd-np-challenge/).
+   ```
    sociodem_bl.csv
    ```
 
@@ -26,7 +29,7 @@ Getting started
    --select-one-child-per-family: Whether to randomly select only one child per family
    --seed: Random number seed for selecting one child per family
    ```
-   For the paper, a `seed` of 77 was used.
+   In our article, a `seed` of 77 was used.
 
 Running the experiments
 =======================
@@ -46,10 +49,17 @@ Running the experiments
    ```
 **Note:** Running these experiments will take extended amounts of time (about 20 hours for a single repeat of 5-fold cross validation on a fast machine). Consider parallelizing computations on several machines by using different seeds.
 
+In our article, a `seed` of 77 was used.
+
 Evaluation and visualization
 ============================
 
 All raw predictions are saved to ``results/``.
+
+Replication of published results
+================================
+
+We have provided a table (`data/splits.csv`) with the subject IDs in the training, validation, and test sets of each fold in our repeated cross validation scheme. You may use it to reproduce the results of our article *Can We Predict Mental Disorders in Children? A Large-Scale Assessment of Machine Learning on Structural Neuroimaging of 6916 Children in the ABCD Study*.
 
 ---
 
