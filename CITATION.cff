@@ -13,6 +13,7 @@ type: software
 authors:
   - given-names: Richard
     family-names: Gaus
+    orcid: 'https://orcid.org/0000-0001-5999-0174'
     affiliation: >-
       The Lab for Artificial Intelligence in Medical Imaging
       (AI-Med), Department of Child and Adolescent
