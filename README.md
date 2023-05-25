@@ -1,10 +1,11 @@
-abcd_paper
-==============================
+# Can We Diagnose Mental Disorders in Children? – A Large-Scale Assessment of Machine Learning on Structural Neuroimaging of 6916 Children in the ABCD Study
+
+![License](https://img.shields.io/github/license/ai-med/abcd_study)
+[![Digital object identifier](https://zenodo.org/badge/DOI/10.5281/zenodo.7968586.svg)](https://doi.org/10.5281/zenodo.7968586)
 
 Goal: Explore predictability of various psychiatric diagnoses based on neuroimaging features in subjects from the ABCD study.
 
-Getting started
-===============
+## Getting started
 
 1. Copy the following files into ``data/raw/``:
 
@@ -31,8 +32,7 @@ Getting started
    ```
    In our article, a `seed` of 77 was used.
 
-Running the experiments
-=======================
+## Running the experiments
 
 1. To fit and obtain training, validation, and test set predictions by the OVR logistic regression, CCE logistic regression, and CCE Bayesian optimized XGBoost models on the processed dataset, run ``python src/runnable/run_unpermuted.py``. Use the following options:
     ```
@@ -51,13 +51,11 @@ Running the experiments
 
 In our article, a `seed` of 77 was used.
 
-Evaluation and visualization
-============================
+## Evaluation and visualization
 
 All raw predictions are saved to ``results/``.
 
-Replication of published results
-================================
+## Replication of published results
 
 We have provided a table (`data/splits.csv`) with the subject IDs in the training, validation, and test sets of each fold in our repeated cross validation scheme. You may use it to reproduce the results of our article *Can We Predict Mental Disorders in Children? A Large-Scale Assessment of Machine Learning on Structural Neuroimaging of 6916 Children in the ABCD Study*.
 
